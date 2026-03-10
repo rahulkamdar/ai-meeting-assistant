@@ -1,0 +1,52 @@
+# Audio files
+*.m4a
+*.mp3
+*.wav
+*.mp4
+*.avi
+
+# Transcripts (user-generated)
+*_transcript.txt
+audio_files/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Docker
+output/
+
+# Environment variables
+.env
+config/secrets.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log

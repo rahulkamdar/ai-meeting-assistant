@@ -1,0 +1,35 @@
+# AI Meeting Assistant Configuration
+
+# LLM Provider: openai, anthropic, or openrouter
+llm_provider: "openai"
+
+# API Keys (keep these secret!)
+api_keys:
+  openai: "sk-..."
+  anthropic: "sk-ant-..."
+  openrouter: "sk-or-..."
+
+# Model Selection
+# OpenAI: gpt-4-turbo-preview, gpt-4, gpt-3.5-turbo
+# Anthropic: claude-3-opus-20240229, claude-3-sonnet-20240229
+# OpenRouter: Check https://openrouter.ai/models
+model: "gpt-4-turbo-preview"
+
+# Analysis Options
+analysis:
+  generate_summary: true
+  extract_action_items: true
+  extract_decisions: true
+  extract_questions: true
+  answer_questions: true  # Interactive Q&A mode
+
+# Transcription Settings
+transcription:
+  whisper_model: "base"  # tiny, base, small, medium, large
+  language: null  # null for auto-detect, or "en", "es", etc.
+
+# Output Settings
+output:
+  save_summary: true
+  save_action_items: true
+  format: "markdown"  # markdown or json
