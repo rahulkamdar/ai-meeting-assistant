@@ -19,4 +19,8 @@ RUN pip install --no-cache-dir setuptools wheel
 RUN pip install --no-cache-dir openai-whisper
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY src/process_audio.py .
+# Copy the entire src directory
+COPY src/ ./src/
+
+# Copy config directory structure (example file only)
+COPY config/config.example.yaml ./config/config.example.yaml
