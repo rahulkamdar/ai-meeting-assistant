@@ -4,252 +4,143 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-An automated audio transcription and speaker diarization tool with AI-powered analysis. Upload your meeting recordings and get speaker-labeled transcripts, summaries, action items, and insights.
+Automated audio transcription with speaker diarization and translation. Supports 99+ languages with automatic translation to English.
 
 ## Features
 
 - **Speaker Diarization**: Automatically identifies and labels different speakers
-- **High-Quality Transcription**: Uses OpenAI Whisper for accurate speech-to-text
-- **AI Analysis**: Leverage GPT-4, Claude, or other LLMs to:
-  - Summarize conversations
-  - Extract action items and decisions
-  - Answer questions about the transcript
-- **Docker-Based**: Runs consistently across all platforms
-- **Privacy-First**: Processes everything locally, only sends transcripts to LLM if you choose
-
-## Prerequisites
-
-- Docker Desktop installed ([Download here](https://www.docker.com/products/docker-desktop))
-- Hugging Face account and API token ([Get one here](https://huggingface.co/settings/tokens))
-- (Optional) API key for your preferred LLM:
-  - [OpenAI API](https://platform.openai.com/api-keys)
-  - [Anthropic API](https://console.anthropic.com/)
-  - [OpenRouter](https://openrouter.ai/keys)
+- **Multi-Language Support**: Works with 99+ languages (Gujarati, Hindi, Spanish, etc.)
+- **Auto-Translation**: Translate non-English audio to English while preserving speaker labels
+- **High-Quality Transcription**: Uses OpenAI Whisper
+- **Privacy-First**: All processing happens locally in Docker
+- **Simple CLI**: Just specify the language code
 
 ## Quick Start
 
-### 1. Clone the Repository
+### 1. Clone and Build
 ```bash
 git clone https://github.com/rahulkamdar/ai-meeting-assistant.git
 cd ai-meeting-assistant
+docker build -t transcriber .
 ```
 
-### 2. Set Up Configuration
-```bash
-# Copy example config
-cp config/config.example.yaml config/config.yaml
-
-# Edit with your API keys
-nano config/config.yaml
-```
-
-### 3. Build Docker Image
-```bash
-docker build -t meeting-assistant .
-```
-
-### 4. Run Transcription
+### 2. Run
 ```bash
 # Set your Hugging Face token
 export HF_TOKEN="your_hf_token_here"
 
-# Transcribe an audio file
-./transcribe.sh path/to/your/audio.m4a
+# Auto-detect language
+./transcribe.sh audio.m4a
+
+# Gujarati → English
+./transcribe.sh audio.m4a gu
+
+# Spanish → English
+./transcribe.sh audio.m4a es
 ```
 
-### 5. Analyze with AI (Optional)
+## Usage
 ```bash
-# After transcription completes
-python src/analyze_transcript.py path/to/your/audio_transcript.txt
+./transcribe.sh <audio-file> [language-code]
 ```
 
-## Configuration
+**Arguments:**
+- `audio-file`: Path to your audio recording
+- `language-code` (optional): Source language - auto-translates to English
+  - `gu` - Gujarati
+  - `hi` - Hindi  
+  - `es` - Spanish
+  - `fr` - French
+  - [See all 99+ languages](https://github.com/openai/whisper#available-models-and-languages)
 
-Edit `config/config.yaml` to customize:
-```yaml
-# LLM Provider (openai, anthropic, openrouter)
-llm_provider: "openai"
-
-# Model selection
-model: "gpt-4-turbo-preview"  # or "claude-3-opus-20240229"
-
-# Analysis options
-analysis:
-  generate_summary: true
-  extract_action_items: true
-  answer_questions: true
-```
-## Language Configuration
-
-The tool uses `config/config.yaml` for language and model settings. **Note:** This file doesn't exist by default - you create it from the example.
-
-### Setup
+**Examples:**
 ```bash
-# Copy the example configuration
-cp config/config.example.yaml config/config.yaml
+# Auto-detect (transcribe in original language)
+./transcribe.sh meeting.m4a
 
-# Edit with your preferred editor
-nano config/config.yaml
-```
+# Gujarati audio → English transcript with speakers
+./transcribe.sh financial_call.m4a gu
 
-### Language Examples
-
-**Auto-detect (default):**
-```yaml
-transcription:
-  whisper_model: "base"
-  language: null
-```
-
-**Gujarati:**
-```yaml
-transcription:
-  whisper_model: "medium"  # Recommended for Indian languages
-  language: "gu"
-```
-
-**Spanish:**
-```yaml
-transcription:
-  whisper_model: "base"
-  language: "es"
-```
-
-**Tip:** For Indian languages (Gujarati, Hindi, Tamil, etc.), use `medium` or `large` models for better accuracy.
-
-## Project Structure
-```
-ai-meeting-assistant/
-├── src/
-│   ├── process_audio.py      # Core transcription logic
-│   └── analyze_transcript.py # LLM analysis
-├── config/
-│   ├── config.example.yaml   # Example configuration
-│   └── config.yaml           # Your config (gitignored)
-├── docs/
-│   ├── USAGE.md             # Detailed usage guide
-│   └── API.md               # API integration details
-├── Dockerfile               # Container definition
-├── requirements.txt         # Python dependencies
-└── transcribe.sh           # Main execution script
+# Spanish audio → English transcript with speakers
+./transcribe.sh client_meeting.m4a es
 ```
 
 ## How It Works
 
-1. **Audio Conversion**: Converts input audio to WAV format for processing
-2. **Speaker Diarization**: Uses pyannote.audio to identify speaker segments
-3. **Transcription**: OpenAI Whisper transcribes each segment
-4. **Merging**: Combines diarization + transcription into speaker-labeled text
-5. **AI Analysis**: (Optional) Sends transcript to your chosen LLM for insights
+1. **Audio Conversion**: Converts to WAV format
+2. **Speaker Diarization**: Identifies who spoke when (pyannote.audio)
+3. **Translation**: Translates to English if language code specified
+4. **Transcription**: High-quality speech-to-text (Whisper)
+5. **Output**: Speaker-labeled English transcript
+
+## Example Output
+
+Input: Gujarati audio with 2 speakers  
+Command: `./transcribe.sh meeting.m4a gu`
+```
+[SPEAKER_00] Good morning, how are you today?
+[SPEAKER_01] I am doing well, thank you for asking.
+[SPEAKER_00] Let's discuss the financial planning details.
+[SPEAKER_01] Yes, I have prepared the documents.
+```
+
+## Prerequisites
+
+- Docker Desktop ([Download](https://www.docker.com/products/docker-desktop))
+- Hugging Face account ([Get token](https://huggingface.co/settings/tokens))
 
 ## Supported Audio Formats
 
-- `.m4a` (most common for meeting recordings)
-- `.mp3`
-- `.wav`
-- `.mp4` (extracts audio)
+- `.m4a`, `.mp3`, `.wav`, `.mp4`
 - Any format supported by FFmpeg
-
-## Example Output
-```
-[SPEAKER_00] Good morning everyone, thanks for joining today's product review.
-[SPEAKER_01] Happy to be here. I've prepared some updates on the Q2 roadmap.
-[SPEAKER_00] Great, let's start with that.
-[SPEAKER_01] So we're planning to ship three major features...
-```
-
-**AI Summary:**
-> This was a product planning meeting with 2 participants discussing Q2 roadmap priorities, feature timelines, and resource allocation.
-
-**Action Items:**
-- [ ] SPEAKER_01: Share Q2 roadmap doc by EOD
-- [ ] SPEAKER_00: Schedule follow-up with engineering team
-- [ ] SPEAKER_01: Prepare cost estimates for new features
 
 ## Privacy & Security
 
-- Audio files are **never uploaded** - all processing happens locally in Docker
-- Only the generated transcript is sent to LLM APIs (if you enable analysis)
-- API keys are stored locally in `config/config.yaml` (gitignored)
-- You can run transcription-only mode without any external API calls
+- ✅ All processing happens locally in Docker
+- ✅ Audio never leaves your machine
+- ✅ No cloud processing required
+- ✅ Free for transcription/translation (only Whisper + pyannote)
+
+## Optional: AI Analysis
+
+After transcription, you can analyze with LLMs:
+```bash
+# Setup (one-time)
+cp config/config.example.yaml config/config.yaml
+# Add your OpenAI/Anthropic API key to config.yaml
+
+# Analyze transcript
+python src/analyze_transcript.py audio_transcript.txt
+```
+
+Get summaries, action items, and Q&A from your transcripts.
 
 ## Troubleshooting
 
-### "Format not recognized" error
-- Ensure FFmpeg is properly installed in the Docker container
-- Try converting your audio to `.wav` first using an external tool
-
-### "HF_TOKEN not set" error
+**"HF_TOKEN not set"**
 ```bash
-export HF_TOKEN="your_hugging_face_token"
+export HF_TOKEN="your_huggingface_token"
 ```
 
-### Docker build fails
+**Docker build fails**
 ```bash
-# Clean Docker cache
 docker system prune -a -f
-docker build --no-cache -t meeting-assistant .
+docker build --no-cache -t transcriber .
 ```
 
 ## Contributing
 
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Contributions welcome! Open an issue or submit a PR.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details
+MIT License - see [LICENSE](LICENSE)
 
 ## Acknowledgments
 
-- [pyannote.audio](https://github.com/pyannote/pyannote-audio) for speaker diarization
-- [OpenAI Whisper](https://github.com/openai/whisper) for transcription
-- Built with Docker for cross-platform compatibility
+- [pyannote.audio](https://github.com/pyannote/pyannote-audio) - Speaker diarization
+- [OpenAI Whisper](https://github.com/openai/whisper) - Transcription & translation
 
 ---
 
-⭐ If you find this useful, please star the repo!
-
-## Translation Support
-
-The tool can translate non-English audio directly to English while maintaining speaker labels.
-
-### Setup Translation
-
-In `config/config.yaml`:
-```yaml
-transcription:
-  whisper_model: "medium"  # Use medium or large for better translation
-  language: "gu"  # Source language (e.g., Gujarati)
-  translate_to_english: true  # Enable translation
-```
-
-### Examples
-
-**Gujarati → English:**
-```yaml
-transcription:
-  whisper_model: "medium"
-  language: "gu"
-  translate_to_english: true
-```
-
-**Spanish → English:**
-```yaml
-transcription:
-  whisper_model: "base"
-  language: "es"
-  translate_to_english: true
-```
-
-**Output Example:**
-```
-[SPEAKER_00] Good morning, how are you today?
-[SPEAKER_01] I am doing well, thank you for asking.
-```
-
-**Note:** Translation works for any language Whisper supports. The audio is in the source language, but the transcript is in English with speaker labels preserved.
+⭐ Star this repo if you find it useful!
