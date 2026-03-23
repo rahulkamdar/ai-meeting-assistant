@@ -31,21 +31,32 @@ log(f"Processing: {input_file.name}")
 
 # Load config
 config = load_config()
-language = None
 whisper_model_size = "base"
 translate_to_english = False
 
-if config and 'transcription' in config:
+# Check for command-line language argument (via environment variable)
+language = os.getenv('LANGUAGE')
+
+if language:
+    # Language specified via command line - always translate to English
+    translate_to_english = True
+    log(f"Command-line language: {language} → English translation enabled")
+    # Use medium model for better translation quality
+    whisper_model_size = "medium"
+elif config and 'transcription' in config:
+    # Fall back to config file
     language = config['transcription'].get('language')
     whisper_model_size = config['transcription'].get('whisper_model', 'base')
     translate_to_english = config['transcription'].get('translate_to_english', False)
     
     if translate_to_english and language and language != 'en':
-        log(f"Translation mode: {language} → English")
+        log(f"Config: {language} → English translation")
     elif language:
-        log(f"Language set to: {language}")
+        log(f"Config: Transcribe in {language}")
     else:
-        log("Language: auto-detect")
+        log("Config: Auto-detect language")
+else:
+    log("No config found - auto-detecting language")
 
 # Convert to WAV
 wav_file = input_file.with_suffix('.wav')
