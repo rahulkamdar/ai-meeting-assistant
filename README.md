@@ -144,3 +144,15 @@ MIT License - see [LICENSE](LICENSE)
 ---
 
 ⭐ Star this repo if you find it useful!
+
+## Troubleshooting
+
+### TypeError: got an unexpected keyword argument 'use_auth_token'
+
+This is fixed in the latest version. If you cloned an older version:
+
+```bash
+docker build --no-cache -t transcriber .
+```
+
+The pinned dependency versions in `requirements.txt` resolve compatibility issues between pyannote.audio, speechbrain, and huggingface-hub.
